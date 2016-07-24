@@ -45,3 +45,19 @@ function pokePositionBack(pokeNumber,X,Y)
 	local sprite = pokemonSizes[pokeNumber]
 	return X-sprite.X*scale*friendScale/2, Y-scale*friendScale*sprite.Y
 end
+
+function enemyPokemon(Pid)
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid}
+	enemy.image = pokeImage(enemy.id)
+	enemy.animation = pokeAnimate(enemy.id)
+	enemy.x, enemy.y = pokePosition(enemy.id,enemy.x,enemy.y)
+	return enemy
+end
+
+function friendPokemon(Pid)
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid}
+	friend.image = pokeImageBack(friend.id)
+	friend.animation = pokeAnimateBack(friend.id)
+	friend.x, friend.y = pokePositionBack(friend.id,friend.x,friend.y)
+	return friend
+end
