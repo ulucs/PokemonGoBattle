@@ -39,7 +39,7 @@ function drawHealthBars(frPkmn, bkPkmn)
 	love.graphics.pop()
 
 	love.graphics.print(pokemonNames[bkPkmn.id].."" , 5*scale, (healthbars.y+5)*scale, 0, scale)
-	love.graphics.printf(pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-5, 'right', 0, scale)
+	love.graphics.printf(pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
 
 	love.graphics.push("all")
 	love.graphics.setColor(12, 244, 0)
