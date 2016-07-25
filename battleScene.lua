@@ -7,14 +7,23 @@ mainScene.load = function()
 	math.randomseed(os.time())
 
 	enemy = enemyPokemon(math.random(151))
+	enemy.attack = outFromBall(enemy)
 	friend = friendPokemon(math.random(151))
+	friend.attack = outFromBall(friend)
 end
 
 mainScene.update = function(dt)
-	enemy.animation:update(dt)
-	friend.animation:update(dt)
-	if friend.attack ~= nil then
-		attackUpdate(friend, dt)
+	-- own pokemon attacking logic
+	if friend.attack then
+		moveAnimUpdate(friend, dt)
+	-- own pokemon fainting logic
+	elseif friend.fainted then
+		friend = friendPokemon(math.random(151))
+		friend.attack = outFromBall(friend)
+	elseif checkFaint(friend) then
+		friend.attack = returnToBall(friend)
+		friend.fainted = true
+	-- own pokemon attacking logic
 	elseif love.mouse.isDown(1) then
 		attackTimer = attackTimer + dt
 		if attackTimer > 1 then
@@ -25,6 +34,23 @@ mainScene.update = function(dt)
 		friend.attack = strikeAttack(friend, enemy)
 		attackTimer = 0
 	end
+
+	-- enemy pokemon animation
+	if enemy.attack then
+		moveAnimUpdate(enemy, dt)
+	-- enemy pokemon fainting
+	elseif enemy.fainted then
+		enemy = enemyPokemon(math.random(151))
+		enemy.attack = outFromBall(enemy)
+	elseif checkFaint(enemy) then
+		enemy.attack = returnToBall(enemy)
+		enemy.fainted = true
+	else
+		-- enemy pokemon attack "AI"
+		enemy.attack = strikeAttack(enemy,friend)
+	end
+	enemy.animation:update(dt)
+	friend.animation:update(dt)
 end
 
 mainScene.draw = function()

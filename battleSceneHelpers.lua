@@ -20,8 +20,11 @@ function drawHealthBars(frPkmn, bkPkmn)
 	love.graphics.printf(pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
 
 	love.graphics.push("all")
-	love.graphics.setColor(12, 244, 0)
+	love.graphics.setColor(2.44*(100-bkPkmn.hp),2.44*bkPkmn.hp,0)
 	love.graphics.polygon('fill', 6*scale,(healthbars.y+24)*scale, 6*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+24)*scale)
+	if debug then
+		love.graphics.setColor(2.44*(100-frPkmn.hp),2.44*frPkmn.hp,0)
+	end
 	love.graphics.polygon('fill', (battleScene.width-6)*scale,(healthbars.y+7)*scale, (battleScene.width-6)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+7)*scale)
 	love.graphics.pop()
 

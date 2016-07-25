@@ -51,7 +51,7 @@ function pokeOffsetBack(pokeNumber)
 end
 
 function enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, xo=nil, yo=nil}
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false}
 	enemy.image = pokeImage(enemy.id)
 	enemy.animation = pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = pokeOffset(enemy.id)
@@ -59,7 +59,7 @@ function enemyPokemon(Pid)
 end
 
 function friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil}
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false}
 	friend.image = pokeImageBack(friend.id)
 	friend.animation = pokeAnimateBack(friend.id)
 	friend.xo, friend.yo = pokeOffsetBack(friend.id)
@@ -67,46 +67,106 @@ function friendPokemon(Pid)
 end
 
 function strikeAttack(attacker, attacked)
-	local attack = {ti=nil, xPath=nil, yPath=nil, xScale=nil, yScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
-	attack.xPath = function(t) if t<0.5 then return 8*t^3 else return 8*(1-t)^3 end end
+	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 8*(1-t)^3')
+		--function(t) if t<0.5 then return 8*t^3 else return 8*(1-t)^3 end end
 	attack.yPath = attack.xPath
 	attack.scalePath = attack.xPath
 	attack.xScale = 0.6*(-attacker.x+attacked.x)
 	attack.yScale = 0.6*(-attacker.y+attacked.y)
 	attack.scaleScale = 0.6*(-attacker.scale+attacked.scale)
 	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
+	attack.animationEnd = {attacker.x,attacker.y,attacker.scale}
 	attack.timeScale = 1
-	attack.terminate = function() attacked.hp = attacked.hp-20 end
+	attack.terminate = function()
+		attacked.hp = attacked.hp-25
+	end
 	return attack
 end
 
 function strongAttack(attacker, attacked)
-	local attack = {ti=nil, xPath=nil, yPath=nil, xScale=nil, yScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
-	attack.xPath = function(t) if t<0.5 then return 8*t^3 else return 2*(1-t) end end
+	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 2*(1-t)')
+		--function(t) if t<0.5 then return 8*t^3 else return 2*(1-t) end end
 	attack.yPath = attack.xPath
 	attack.scalePath = attack.xPath
 	attack.xScale = 0.8*(-attacker.x+attacked.x)
 	attack.yScale = 0.8*(-attacker.y+attacked.y)
 	attack.scaleScale = 0.8*(-attacker.scale+attacked.scale)
 	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
+	attack.animationEnd = {attacker.x,attacker.y,attacker.scale}
 	attack.timeScale = 2
-	attack.terminate = function() attacked.hp = attacked.hp-40 end
+	attack.terminate = function()
+		attacked.hp = attacked.hp-40
+	end
 	return attack
 end
 
-function attackUpdate(attacker, dt)
+function returnToBall(attacked)
+	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	attack.ti = 0
+	attack.xPath = lambda('t','t')
+	attack.yPath = attack.xPath
+	attack.scalePath = lambda('t','t^2')
+	attack.xScale = 0
+	attack.yScale = 0
+	attack.scaleScale = -attacked.scale
+	attack.animationStart = {attacked.x,attacked.y,attacked.scale}
+	attack.animationEnd = {attacked.x,attacked.y,0}
+	attack.timeScale = 1
+	attack.terminate = function() end
+	return attack
+end
+
+function outFromBall(attacked)
+	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	attack.ti = 0
+	attack.xPath = lambda('t','t')
+	attack.yPath = attack.xPath
+	attack.scalePath = lambda('t','t')
+	attack.xScale = 0
+	attack.yScale = 0
+	attack.scaleScale = attacked.scale
+	attack.animationStart = {attacked.x,attacked.y,0}
+	attack.animationEnd = {attacked.x,attacked.y,attacked.scale}
+	attack.timeScale = 1
+	attack.terminate = function() end
+	return attack
+end
+
+function placeHolderAnim(attacked)
+	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	attack.ti = 0
+	attack.xPath = lambda('','0')
+	attack.yPath = attack.xPath
+	attack.scalePath = lambda('','0')
+	attack.xScale = 0
+	attack.yScale = 0
+	attack.scaleScale = attacked.scale
+	attack.animationStart = {attacked.x,attacked.y,attacked.scale}
+	attack.animationEnd = {attacked.x,attacked.y,attacked.scale}
+	attack.timeScale = 1
+	attack.terminate = function() end
+	return attack
+end
+
+function moveAnimUpdate(attacker,dt)
 	local attackAnim = attacker.attack
 	attackAnim.ti = attackAnim.ti + dt/attackAnim.timeScale
 	attacker.x = attackAnim.animationStart[1] + attackAnim.xScale*attackAnim.xPath(attackAnim.ti)
 	attacker.y = attackAnim.animationStart[2] + attackAnim.yScale*attackAnim.yPath(attackAnim.ti)
 	attacker.scale = attackAnim.animationStart[3] + attackAnim.scaleScale*attackAnim.scalePath(attackAnim.ti)
 	if attackAnim.ti>=1 then
-		attacker.x = attackAnim.animationStart[1]
-		attacker.y = attackAnim.animationStart[2]
-		attacker.scale = attackAnim.animationStart[3]
+		attacker.x = attackAnim.animationEnd[1]
+		attacker.y = attackAnim.animationEnd[2]
+		attacker.scale = attackAnim.animationEnd[3]
 		attackAnim.terminate()
 		attacker.attack = nil
 	end
+end
+
+function checkFaint(attacked)
+	return attacked.hp<=0
 end
