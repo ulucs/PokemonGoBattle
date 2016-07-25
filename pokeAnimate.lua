@@ -4,6 +4,10 @@ require('spriteData')
 -- forgive me lord for I have sinned
 -- I should do some ""metaprogramming"" to set these data instances straight
 
+function drawPokemon(pokemon)
+	pokemon.animation:draw(pokemon.image, pokemon.x, pokemon.y, 0,scale*pokemon.scale,scale*pokemon.scale,pokemon.xo,pokemon.yo)
+end
+
 function pokeAnimate(pokeNumber)
 	-- watch me fearlessly continue to sin
 	local sprite = pokemonSizes[pokeNumber]
@@ -20,9 +24,9 @@ function pokeImage(pokeNumber)
 	return love.graphics.newImage(imageStr)
 end
 
-function pokePosition(pokeNumber,X,Y)
-	local sprite = pokemonSizes[pokeNumber]
-	return X-sprite.X*scale*enemyScale/2, Y-scale*enemyScale*sprite.Y
+function pokeOffset(pokeNumber)
+	local sprite = pokemonOffsets[pokeNumber]
+	return sprite[1], sprite[2]
 end
 
 function pokeAnimateBack(pokeNumber)
@@ -41,23 +45,68 @@ function pokeImageBack(pokeNumber)
 	return love.graphics.newImage(imageStr)
 end
 
-function pokePositionBack(pokeNumber,X,Y)
-	local sprite = pokemonSizes[pokeNumber]
-	return X-sprite.X*scale*friendScale/2, Y-scale*friendScale*sprite.Y
+function pokeOffsetBack(pokeNumber)
+	local sprite = pokemonOffsetsBack[pokeNumber]
+	return sprite[1], sprite[2]
 end
 
 function enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid}
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, xo=nil, yo=nil}
 	enemy.image = pokeImage(enemy.id)
 	enemy.animation = pokeAnimate(enemy.id)
-	enemy.x, enemy.y = pokePosition(enemy.id,enemy.x,enemy.y)
+	enemy.xo, enemy.yo = pokeOffset(enemy.id)
 	return enemy
 end
 
 function friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid}
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil}
 	friend.image = pokeImageBack(friend.id)
 	friend.animation = pokeAnimateBack(friend.id)
-	friend.x, friend.y = pokePositionBack(friend.id,friend.x,friend.y)
+	friend.xo, friend.yo = pokeOffsetBack(friend.id)
 	return friend
+end
+
+function strikeAttack(attacker, attacked)
+	local attack = {ti=nil, xPath=nil, yPath=nil, xScale=nil, yScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	attack.ti = 0
+	attack.xPath = function(t) if t<0.5 then return 8*t^3 else return 8*(1-t)^3 end end
+	attack.yPath = attack.xPath
+	attack.scalePath = attack.xPath
+	attack.xScale = 0.6*(-attacker.x+attacked.x)
+	attack.yScale = 0.6*(-attacker.y+attacked.y)
+	attack.scaleScale = 0.6*(-attacker.scale+attacked.scale)
+	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
+	attack.timeScale = 1
+	attack.terminate = function() attacked.hp = attacked.hp-20 end
+	return attack
+end
+
+function strongAttack(attacker, attacked)
+	local attack = {ti=nil, xPath=nil, yPath=nil, xScale=nil, yScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
+	attack.ti = 0
+	attack.xPath = function(t) if t<0.5 then return 8*t^3 else return 2*(1-t) end end
+	attack.yPath = attack.xPath
+	attack.scalePath = attack.xPath
+	attack.xScale = 0.8*(-attacker.x+attacked.x)
+	attack.yScale = 0.8*(-attacker.y+attacked.y)
+	attack.scaleScale = 0.8*(-attacker.scale+attacked.scale)
+	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
+	attack.timeScale = 2
+	attack.terminate = function() attacked.hp = attacked.hp-40 end
+	return attack
+end
+
+function attackUpdate(attacker, dt)
+	local attackAnim = attacker.attack
+	attackAnim.ti = attackAnim.ti + dt/attackAnim.timeScale
+	attacker.x = attackAnim.animationStart[1] + attackAnim.xScale*attackAnim.xPath(attackAnim.ti)
+	attacker.y = attackAnim.animationStart[2] + attackAnim.yScale*attackAnim.yPath(attackAnim.ti)
+	attacker.scale = attackAnim.animationStart[3] + attackAnim.scaleScale*attackAnim.scalePath(attackAnim.ti)
+	if attackAnim.ti>=1 then
+		attacker.x = attackAnim.animationStart[1]
+		attacker.y = attackAnim.animationStart[2]
+		attacker.scale = attackAnim.animationStart[3]
+		attackAnim.terminate()
+		attacker.attack = nil
+	end
 end
