@@ -1,5 +1,6 @@
 require('battleSceneHelpers')
 local mainScene = {load=nil, update=nil, draw=nil}
+enemyAttCounter = false
 
 mainScene.load = function()
 	love.window.setMode(battleScene.width*scale,(battleScene.width*16/9)*scale,{vsync=false})
@@ -13,6 +14,7 @@ mainScene.load = function()
 end
 
 mainScene.update = function(dt)
+	local recieveCommands = friend.battleReady and enemy.battleReady and not friend.fainted and not enemy.fainted
 	-- own pokemon attacking logic
 	if friend.attack then
 		moveAnimUpdate(friend, dt)
@@ -24,15 +26,17 @@ mainScene.update = function(dt)
 		friend.attack = returnToBall(friend)
 		friend.fainted = true
 	-- own pokemon attacking logic
-	elseif love.mouse.isDown(1) then
-		attackTimer = attackTimer + dt
-		if attackTimer > 1 then
-			friend.attack = strongAttack(friend, enemy)
+	elseif recieveCommands then
+		if love.mouse.isDown(1) then
+			attackTimer = attackTimer + dt
+			if attackTimer > 1 then
+				friend.attack = strongAttack(friend, enemy)
+				attackTimer = 0
+			end
+		elseif attackTimer>0 then
+			friend.attack = strikeAttack(friend, enemy)
 			attackTimer = 0
 		end
-	elseif attackTimer>0 then
-		friend.attack = strikeAttack(friend, enemy)
-		attackTimer = 0
 	end
 
 	-- enemy pokemon animation
@@ -45,9 +49,10 @@ mainScene.update = function(dt)
 	elseif checkFaint(enemy) then
 		enemy.attack = returnToBall(enemy)
 		enemy.fainted = true
-	else
+	elseif recieveCommands then
 		-- enemy pokemon attack "AI"
-		enemy.attack = strikeAttack(enemy,friend)
+		enemy.attack = enemyAttCounter and strikeAttack(enemy,friend) or pauseAnim(enemy)
+		enemyAttCounter = not enemyAttCounter
 	end
 	enemy.animation:update(dt)
 	friend.animation:update(dt)

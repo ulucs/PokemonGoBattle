@@ -51,7 +51,7 @@ function pokeOffsetBack(pokeNumber)
 end
 
 function enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false}
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
 	enemy.image = pokeImage(enemy.id)
 	enemy.animation = pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = pokeOffset(enemy.id)
@@ -59,7 +59,7 @@ function enemyPokemon(Pid)
 end
 
 function friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false}
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
 	friend.image = pokeImageBack(friend.id)
 	friend.animation = pokeAnimateBack(friend.id)
 	friend.xo, friend.yo = pokeOffsetBack(friend.id)
@@ -132,11 +132,11 @@ function outFromBall(attacked)
 	attack.animationStart = {attacked.x,attacked.y,0}
 	attack.animationEnd = {attacked.x,attacked.y,attacked.scale}
 	attack.timeScale = 1
-	attack.terminate = function() end
+	attack.terminate = function() attacked.battleReady = true end
 	return attack
 end
 
-function placeHolderAnim(attacked)
+function pauseAnim(attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('','0')
@@ -147,7 +147,7 @@ function placeHolderAnim(attacked)
 	attack.scaleScale = attacked.scale
 	attack.animationStart = {attacked.x,attacked.y,attacked.scale}
 	attack.animationEnd = {attacked.x,attacked.y,attacked.scale}
-	attack.timeScale = 1
+	attack.timeScale = 0.5
 	attack.terminate = function() end
 	return attack
 end
