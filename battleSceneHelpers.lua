@@ -17,7 +17,9 @@ function drawHealthBars(frPkmn, bkPkmn)
 	love.graphics.draw(healthbars.bg, 0, healthbars.y*scale, 0, healthbars.width*scale, healthbars.height*scale)
 
 	love.graphics.print(pokemonNames[bkPkmn.id].."" , 5*scale, (healthbars.y+5)*scale, 0, scale)
-	love.graphics.printf(pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
+	if not frPkmn.placeholder then
+		love.graphics.printf(pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
+	end
 
 	love.graphics.push("all")
 	love.graphics.setColor(2.44*(100-bkPkmn.hp),2.44*bkPkmn.hp,0)

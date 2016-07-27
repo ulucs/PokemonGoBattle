@@ -14,7 +14,7 @@ client.parsed = {A=nil,P=nil}
 
 function client:parser(data)
 	print(data)
-	local mtype, enum = data:match("([A-Z]):([0-9])")
+	local mtype, enum = data:match("([A-Z]):([0-9]+)")
 	if mtype and enum then
 		self.parsed[mtype] = tonumber(enum)
 	end

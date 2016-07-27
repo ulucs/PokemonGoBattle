@@ -51,15 +51,23 @@ function pokeOffsetBack(pokeNumber)
 end
 
 function enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder=false}
 	enemy.image = pokeImage(enemy.id)
 	enemy.animation = pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = pokeOffset(enemy.id)
 	return enemy
 end
 
+function placeholderMon()
+	local enemy = {hp=100, x=0, y=0, animation=nil, image=nil, id=1, scale=0, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder = true}
+	enemy.image = pokeImage(enemy.id)
+	enemy.animation = pokeAnimate(enemy.id)
+	enemy.xo, enemy.yo = 0,0
+	return enemy
+end
+
 function friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder=false}
 	friend.image = pokeImageBack(friend.id)
 	friend.animation = pokeAnimateBack(friend.id)
 	friend.xo, friend.yo = pokeOffsetBack(friend.id)
