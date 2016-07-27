@@ -1,5 +1,3 @@
-attackTimer = 0
-
 function drawBattleScene(bg, frPkmn, bkPkmn)
 	love.graphics.draw(bg, 0, 0, 0, scale)
 	if debug then

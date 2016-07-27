@@ -1,96 +1,118 @@
-require('battleSceneHelpers')
-network = require('client')
-local mainScene = {load=nil, update=nil, draw=nil}
+local mainScene = {ourpokemon=nil,counter=nil,enemyCounter=nil,enemy=nil,friend=nil,attackTimer=0,network=nil,remove=false,resultParams=nil}
+mainScene.network = require('client')
+mainScene.animation = require('battleSceneAnimations')
 
-mainScene.load = function()
-	love.window.setMode(battleScene.width*scale,(battleScene.width*16/9)*scale,{vsync=false})
+noPokemon = 2
 
-	math.randomseed(os.time())
+function mainScene:load(address)
 
-	ourpokemon = {}
-	counter = 1
-	for i=1,6 do
-		table.insert(ourpokemon,math.random(151))
+	self.ourpokemon = {}
+	self.counter = 1
+	self.enemyCounter = 1
+	for i=1,noPokemon do
+		table.insert(self.ourpokemon,math.random(151))
 	end
 
-	network:load()
+	self.network:load(address)
 
-	enemy = placeholderMon()
-	friend = friendPokemon(ourpokemon[counter])
-	friend.attack = outFromBall(friend)
-	network:addPayload("P:"..ourpokemon[counter])
+	self.enemy = self.animation:placeholderMon()
+	self.friend = self.animation:friendPokemon(self.ourpokemon[self.counter])
+	self.friend.attack = self.animation.outFromBall(self.friend)
+	self.network:addPayload("P:"..self.ourpokemon[self.counter])
 end
 
-mainScene.update = function(dt)
+function mainScene:update(dt)
 	local receiveCommands
-	if not enemy.placeholder then
-		receiveCommands = friend.battleReady and enemy.battleReady and not friend.fainted and not enemy.fainted
+	if not self.enemy.placeholder then
+		receiveCommands = self.friend.battleReady and self.enemy.battleReady and not self.friend.fainted and not self.enemy.fainted
 		-- own pokemon attacking logic
-		if friend.attack then
-			moveAnimUpdate(friend, dt)
-		-- own pokemon fainting logic
-		elseif friend.fainted then
-			counter = counter+1
-			friend = friendPokemon(ourpokemon[counter])
-			friend.attack = outFromBall(friend)
-			network:addPayload("P:"..ourpokemon[counter])
-		elseif checkFaint(friend) then
-			friend.attack = returnToBall(friend)
-			friend.fainted = true
+		if self.friend.attack then
+			self.animation.moveAnimUpdate(self.friend, dt)
 		-- own pokemon attacking logic
 		elseif receiveCommands then
 			if love.mouse.isDown(1) then
-				attackTimer = attackTimer + dt
-				if attackTimer > 1 then
-					friend.attack = strongAttack(friend, enemy)
-					attackTimer = 0
+				self.attackTimer = self.attackTimer + dt
+				if self.attackTimer > 1 then
+					self.friend.attack = self.animation.strongAttack(self.friend, self.enemy)
+					self.attackTimer = 0
 	
-					network:addPayload("A:2")
+					self.network:addPayload("A:2")
 				end
-			elseif attackTimer>0 then
-				friend.attack = strikeAttack(friend, enemy)
-				attackTimer = 0
+			elseif self.attackTimer>0 then
+				self.friend.attack = self.animation.strikeAttack(self.friend, self.enemy)
+				self.attackTimer = 0
 	
-				network:addPayload("A:1")
+				self.network:addPayload("A:1")
 			end
 		end
+	elseif self.enemyCounter>noPokemon and not self.friend.attack then
+		self.resultParams = "Win"
+		self.remove = true
+		return   
 	end
 
-	network:update(dt)
+	-- own pokemon fainting logic
+	if self.friend.fainted and not self.friend.attack then
+		self.counter = self.counter+1
+		if self.counter>noPokemon then
+			if self.enemy.hp <=0 or self.enemy.placeholder then
+				self.enemyCounter = self.enemyCounter+1
+			end
+			self.resultParams = self.enemyCounter>noPokemon and "Draw" or "Lose"
+			self.remove = true
+			return
+		end
+		self.friend = self.animation:friendPokemon(self.ourpokemon[self.counter])
+		self.friend.attack = self.animation.outFromBall(self.friend)
+		self.network:addPayload("P:"..self.ourpokemon[self.counter])
+	elseif self.animation.checkFaint(self.friend) and not self.friend.attack then
+		self.friend.attack = self.animation.returnToBall(self.friend)
+		self.friend.fainted = true
+	end
 
-	if not enemy.placeholder then
+	self.network:update(dt)
+
+	if not self.enemy.placeholder then
 		-- enemy pokemon animation
-		if enemy.attack then
-			moveAnimUpdate(enemy, dt)
+		if self.enemy.attack then
+			self.animation.moveAnimUpdate(self.enemy, dt)
 		-- enemy pokemon fainting
-		elseif enemy.fainted then
-			enemy = placeholderMon()
-		elseif checkFaint(enemy) then
-			enemy.attack = returnToBall(enemy)
-			enemy.fainted = true
+		elseif self.enemy.fainted then
+			self.enemy = self.animation:placeholderMon()
+		elseif self.animation.checkFaint(self.enemy) then
+			self.enemy.attack = self.animation.returnToBall(self.enemy)
+			self.enemy.fainted = true
+			self.enemyCounter = self.enemyCounter+1
 		elseif receiveCommands then
 			-- if attack data from opposite side
-			if network.parsed['A'] == 1 then
-				enemy.attack = strikeAttack(enemy,friend)
-				network.parsed['A'] = nil
-			elseif network.parsed['A'] == 2 then
-				enemy.attack = strongAttack(enemy,friend)
-				network.parsed['A'] = nil
+			if self.network.parsed['A'] == 1 then
+				self.enemy.attack = self.animation.strikeAttack(self.enemy,self.friend)
+				self.network.parsed['A'] = nil
+			elseif self.network.parsed['A'] == 2 then
+				self.enemy.attack = self.animation.strongAttack(self.enemy,self.friend)
+				self.network.parsed['A'] = nil
 			end
 		end
-		enemy.animation:update(dt)
-	elseif enemy.placeholder and network.parsed['P'] then
-		enemy = enemyPokemon(network.parsed['P'])
-		enemy.attack = outFromBall(enemy)
-		network.parsed['P'] = nil
+		self.enemy.animation:update(dt)
+	elseif self.enemy.placeholder and self.network.parsed['P'] then
+		self.enemy = self.animation:enemyPokemon(self.network.parsed['P'])
+		self.enemy.attack = self.animation.outFromBall(self.enemy)
+		self.network.parsed['P'] = nil
 	end
-	friend.animation:update(dt)
+	self.friend.animation:update(dt)
 end
 
-mainScene.draw = function()
-	drawBattleScene(battleScene.bg, enemy,friend)
-	drawHealthBars(enemy,friend)
-	drawUI()
+function mainScene:draw()
+	self.animation:drawBattleScene(battleScene.bg, self.enemy,self.friend)
+	self.animation:drawHealthBars(self.enemy,self.friend)
+	self.animation.drawUI()
 end
+
+function mainScene:close()
+	local params = self.resultParams
+	local towards = 'resultScene'
+	return towards, params
+end
+
 
 return mainScene

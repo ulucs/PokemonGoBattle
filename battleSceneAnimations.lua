@@ -1,80 +1,82 @@
-local anim8 = require('anim8')
-require('spriteData')
+local animations = {}
+
+animations.anim8 = require('anim8')
+animations.spriteData = require('spriteData')
 
 -- forgive me lord for I have sinned
 -- I should do some ""metaprogramming"" to set these data instances straight
 
-function drawPokemon(pokemon)
+function animations.drawPokemon(pokemon)
 	pokemon.animation:draw(pokemon.image, pokemon.x, pokemon.y, 0,scale*pokemon.scale,scale*pokemon.scale,pokemon.xo,pokemon.yo)
 end
 
-function pokeAnimate(pokeNumber)
+function animations:pokeAnimate(pokeNumber)
 	-- watch me fearlessly continue to sin
-	local sprite = pokemonSizes[pokeNumber]
-	local sheet = sheetSizes[pokeNumber]
-	return anim8.newAnimation(
-		(anim8.newGrid(sprite.X,sprite.Y, sheet.X,sheet.Y, 0,0,0))(
+	local sprite = self.spriteData.pokemonSizes[pokeNumber]
+	local sheet = self.spriteData.sheetSizes[pokeNumber]
+	return self.anim8.newAnimation(
+		(self.anim8.newGrid(sprite.X,sprite.Y, sheet.X,sheet.Y, 0,0,0))(
 			'1-'..(sheet.X/sprite.X), '1-'..(sheet.Y/sprite.Y-1), 
 			'1-'..sprite.frameNo-(sheet.X/sprite.X)*(sheet.Y/sprite.Y-1),
 			sheet.Y/sprite.Y), 0.066)
 end
 
-function pokeImage(pokeNumber)
+function animations.pokeImage(pokeNumber)
 	local imageStr = string.format("pokemonSprites/front/%03d.png", pokeNumber)
 	return love.graphics.newImage(imageStr)
 end
 
-function pokeOffset(pokeNumber)
-	local sprite = pokemonOffsets[pokeNumber]
+function animations:pokeOffset(pokeNumber)
+	local sprite = self.spriteData.pokemonOffsets[pokeNumber]
 	return sprite[1], sprite[2]
 end
 
-function pokeAnimateBack(pokeNumber)
+function animations:pokeAnimateBack(pokeNumber)
 	-- watch me fearlessly continue to sin
-	local sprite = pokemonSizesBack[pokeNumber]
-	local sheet = sheetSizesBack[pokeNumber]
-	return anim8.newAnimation(
-		(anim8.newGrid(sprite.X,sprite.Y, sheet.X,sheet.Y, 0,0,0))(
+	local sprite = self.spriteData.pokemonSizesBack[pokeNumber]
+	local sheet = self.spriteData.sheetSizesBack[pokeNumber]
+	return self.anim8.newAnimation(
+		(self.anim8.newGrid(sprite.X,sprite.Y, sheet.X,sheet.Y, 0,0,0))(
 			'1-'..(sheet.X/sprite.X), '1-'..(sheet.Y/sprite.Y-1), 
 			'1-'..sprite.frameNo-(sheet.X/sprite.X)*(sheet.Y/sprite.Y-1),
 			sheet.Y/sprite.Y), 0.066)
 end
 
-function pokeImageBack(pokeNumber)
+function animations:pokeImageBack(pokeNumber)
 	local imageStr = string.format("pokemonSprites/back/%03d.png", pokeNumber)
 	return love.graphics.newImage(imageStr)
 end
 
-function pokeOffsetBack(pokeNumber)
-	local sprite = pokemonOffsetsBack[pokeNumber]
+function animations:pokeOffsetBack(pokeNumber)
+	local sprite = self.spriteData.pokemonOffsetsBack[pokeNumber]
 	return sprite[1], sprite[2]
 end
 
-function enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder=false}
-	enemy.image = pokeImage(enemy.id)
-	enemy.animation = pokeAnimate(enemy.id)
-	enemy.xo, enemy.yo = pokeOffset(enemy.id)
+function animations:enemyPokemon(Pid)
+	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+	enemy.image = self.pokeImage(enemy.id)
+	enemy.animation = self:pokeAnimate(enemy.id)
+	enemy.xo, enemy.yo = self:pokeOffset(enemy.id)
 	return enemy
 end
 
-function placeholderMon()
+function animations:placeholderMon()
 	local enemy = {hp=100, x=0, y=0, animation=nil, image=nil, id=1, scale=0, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder = true}
-	enemy.image = pokeImage(enemy.id)
-	enemy.animation = pokeAnimate(enemy.id)
+	enemy.image = self.pokeImage(enemy.id)
+	enemy.animation = self:pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = 0,0
 	return enemy
 end
 
-function friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder=false}
-	friend.image = pokeImageBack(friend.id)
-	friend.animation = pokeAnimateBack(friend.id)
-	friend.xo, friend.yo = pokeOffsetBack(friend.id)
+function animations:friendPokemon(Pid)
+	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+	friend.image = self:pokeImageBack(friend.id)
+	friend.animation = self:pokeAnimateBack(friend.id)
+	friend.xo, friend.yo = self:pokeOffsetBack(friend.id)
 	return friend
 end
 
-function strikeAttack(attacker, attacked)
+function animations.strikeAttack(attacker, attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 8*(1-t)^3')
@@ -93,7 +95,7 @@ function strikeAttack(attacker, attacked)
 	return attack
 end
 
-function strongAttack(attacker, attacked)
+function animations.strongAttack(attacker, attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 2*(1-t)')
@@ -112,7 +114,7 @@ function strongAttack(attacker, attacked)
 	return attack
 end
 
-function returnToBall(attacked)
+function animations.returnToBall(attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t')
@@ -128,7 +130,7 @@ function returnToBall(attacked)
 	return attack
 end
 
-function outFromBall(attacked)
+function animations.outFromBall(attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t')
@@ -144,7 +146,7 @@ function outFromBall(attacked)
 	return attack
 end
 
-function pauseAnim(attacked)
+function animations.pauseAnim(attacked)
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('','0')
@@ -160,7 +162,7 @@ function pauseAnim(attacked)
 	return attack
 end
 
-function moveAnimUpdate(attacker,dt)
+function animations.moveAnimUpdate(attacker,dt)
 	local attackAnim = attacker.attack
 	attackAnim.ti = attackAnim.ti + dt/attackAnim.timeScale
 	attacker.x = attackAnim.animationStart[1] + attackAnim.xScale*attackAnim.xPath(attackAnim.ti)
@@ -175,6 +177,50 @@ function moveAnimUpdate(attacker,dt)
 	end
 end
 
-function checkFaint(attacked)
+function animations.checkFaint(attacked)
 	return attacked.hp<=0
 end
+
+function animations:drawBattleScene(bg, frPkmn, bkPkmn)
+	love.graphics.draw(bg, 0, 0, 0, scale)
+	if debug then
+		love.graphics.print("FPS: "..love.timer.getFPS(), 0,0,0, scale) end
+
+	self.drawPokemon(frPkmn)
+	self.drawPokemon(bkPkmn)
+end
+
+function animations:drawHealthBars(frPkmn, bkPkmn)
+	-- love.graphics.push("all")
+	-- love.graphics.setColor(60, 11, 11)
+	-- love.graphics.polygon('fill', 0,healthbars.y*scale, battleScene.width*scale,healthbars.y*scale, battleScene.width*scale,(healthbars.y+healthbars.height)*scale, 0,(healthbars.y+healthbars.height)*scale)
+	-- love.graphics.pop()
+	love.graphics.draw(healthbars.bg, 0, healthbars.y*scale, 0, healthbars.width*scale, healthbars.height*scale)
+
+	love.graphics.print(self.spriteData.pokemonNames[bkPkmn.id].."" , 5*scale, (healthbars.y+5)*scale, 0, scale)
+	if not frPkmn.placeholder then
+		love.graphics.printf(self.spriteData.pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
+	end
+
+	love.graphics.push("all")
+	love.graphics.setColor(2.44*(100-bkPkmn.hp),2.44*bkPkmn.hp,0)
+	love.graphics.polygon('fill', 6*scale,(healthbars.y+24)*scale, 6*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+24)*scale)
+	if debug then
+		love.graphics.setColor(2.44*(100-frPkmn.hp),2.44*frPkmn.hp,0)
+	end
+	love.graphics.polygon('fill', (battleScene.width-6)*scale,(healthbars.y+7)*scale, (battleScene.width-6)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+7)*scale)
+	love.graphics.pop()
+
+
+	love.graphics.printf("VS",0, (healthbars.y+14)*scale, battleScene.width, 'center', 0, scale)
+end
+
+function animations.drawUI()
+	-- love.graphics.push("all")
+	-- love.graphics.setColor(11, 6, 57)
+	-- love.graphics.polygon('fill', 0*scale,(ui.y+0)*scale, 0*scale,(ui.y+ui.height-0)*scale, (ui.width-0)*scale,(ui.y+ui.height-0)*scale, (ui.width-0)*scale,(ui.y+0)*scale)
+	-- love.graphics.pop()
+	love.graphics.draw(ui.bg, 0, ui.y*scale, 0, scale)
+end
+
+return animations
