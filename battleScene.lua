@@ -1,6 +1,6 @@
 require('battleSceneHelpers')
+network = require('client')
 local mainScene = {load=nil, update=nil, draw=nil}
-enemyAttCounter = false
 
 mainScene.load = function()
 	love.window.setMode(battleScene.width*scale,(battleScene.width*16/9)*scale,{vsync=false})
@@ -11,6 +11,8 @@ mainScene.load = function()
 	enemy.attack = outFromBall(enemy)
 	friend = friendPokemon(math.random(151))
 	friend.attack = outFromBall(friend)
+
+	network:load()
 end
 
 mainScene.update = function(dt)
@@ -32,12 +34,18 @@ mainScene.update = function(dt)
 			if attackTimer > 1 then
 				friend.attack = strongAttack(friend, enemy)
 				attackTimer = 0
+
+				network:addPayload("A:2")
 			end
 		elseif attackTimer>0 then
 			friend.attack = strikeAttack(friend, enemy)
 			attackTimer = 0
+
+			network:addPayload("A:1")
 		end
 	end
+
+	network:update(dt)
 
 	-- enemy pokemon animation
 	if enemy.attack then
@@ -50,9 +58,14 @@ mainScene.update = function(dt)
 		enemy.attack = returnToBall(enemy)
 		enemy.fainted = true
 	elseif recieveCommands then
-		-- enemy pokemon attack "AI"
-		enemy.attack = enemyAttCounter and strikeAttack(enemy,friend) or pauseAnim(enemy)
-		enemyAttCounter = not enemyAttCounter
+		-- if attack data from opposite side
+		if network.parsed['A'] == 1 then
+			enemy.attack = strikeAttack(enemy,friend)
+			network.parsed = {}
+		elseif network.parsed['A'] == 2 then
+			enemy.attack = strongAttack(enemy,friend)
+			network.parsed = {}
+		end
 	end
 	enemy.animation:update(dt)
 	friend.animation:update(dt)
