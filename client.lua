@@ -1,5 +1,7 @@
-socket = require('socket')
-client = {}
+return function()
+local client = {}
+client.socket = require('socket')
+
 local port = 3300
 
 client.entity = nil
@@ -21,7 +23,7 @@ function client:parser(data)
 end
 
 function client:load(address)
-	self.udp = socket.udp()
+	self.udp = self.socket.udp()
 	self.udp:settimeout(0)
 	self.udp:setpeername(address, port)
 
@@ -48,3 +50,4 @@ function client:update(dt)
 end
 
 return client
+end

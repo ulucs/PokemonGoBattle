@@ -1,10 +1,10 @@
 require('confs')
-scene = require('battleScene')
+scene = require('selectMode')()
 
 function love.load()
 	love.window.setMode(battleScene.width*scale,(battleScene.width*16/9)*scale,{vsync=false})
 	math.randomseed(os.time())
-	scene:load("localhost")
+	scene:load()
 end
 
 function love.update(dt)
@@ -21,6 +21,8 @@ end
 
 function sceneTransfer()
 	local nextScene, params = scene:close()
-	scene = require(nextScene)
+	scene = nil
+	collectgarbage()
+	scene = require(nextScene)()
 	scene:load(params)
 end

@@ -1,5 +1,6 @@
-socket = require('socket')
-server = {}
+return function()
+local server = {}
+server.socket = require('socket')
 
 server.udp = nil
 
@@ -16,7 +17,7 @@ function server:parser(data)
 end
 
 function server:load()
-	self.udp = socket.udp()
+	self.udp = self.socket.udp()
 	self.udp:settimeout(0)
 	self.udp:setsockname('*', 3300)
 end
@@ -38,3 +39,4 @@ function server:update(dt)
 end
 
 return server
+end

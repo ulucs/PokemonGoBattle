@@ -1,10 +1,11 @@
+return function()
 local mainScene = {ourpokemon=nil,counter=nil,enemyCounter=nil,enemy=nil,friend=nil,attackTimer=0,network=nil,remove=false,resultParams=nil}
-mainScene.network = require('client')
 mainScene.animation = require('battleSceneAnimations')
 
 noPokemon = 2
 
-function mainScene:load(address)
+function mainScene:load(loadmode)
+	self.network = require(loadmode.mode)()
 
 	self.ourpokemon = {}
 	self.counter = 1
@@ -13,7 +14,7 @@ function mainScene:load(address)
 		table.insert(self.ourpokemon,math.random(151))
 	end
 
-	self.network:load(address)
+	self.network:load(loadmode.address)
 
 	self.enemy = self.animation:placeholderMon()
 	self.friend = self.animation:friendPokemon(self.ourpokemon[self.counter])
@@ -114,5 +115,5 @@ function mainScene:close()
 	return towards, params
 end
 
-
 return mainScene
+end
