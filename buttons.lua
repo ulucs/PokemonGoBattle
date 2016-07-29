@@ -17,9 +17,9 @@ function buttons.drawButton(label,x,y,width,height,scale)
 end
 
 function buttons.isPressed(x,y,width,height,scale)
-	return function(down, getX, getY)
-		return down and getX > x*scale and getX < (x+width)*scale and
-			getY > y*scale and getY < (y+height)*scale
+	return function(mouseX, mouseY)
+		return mouseX > x*scale and mouseX < (x+width)*scale and
+			mouseY > y*scale and mouseY < (y+height)*scale
 	end
 end
 
@@ -37,9 +37,9 @@ function buttons:draw()
 	end
 end
 
-function buttons:update()
+function buttons:mouseActions(x,y,button,istouch)
 	for _,v in ipairs(self.updateStack) do
-		if v.condition(love.mouse.isDown(1),love.mouse.getX(),love.mouse.getY()) then
+		if v.condition(x,y) then
 			v.result()
 			return
 		end

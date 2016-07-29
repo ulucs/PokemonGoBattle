@@ -1,15 +1,16 @@
 return function()
 require('confs')
 local resultScene = {remove=false}
+resultScene.buttons = require('buttons')()
 
 function resultScene:load(result)
 	self.result = result
+	self.buttons:addButton("Play again?", 0.2*battleScene.width, 0.8*battleScene.width, battleScene.width*0.6, 0.38*battleScene.width, scale, function()
+		self.remove = true end)
 end
 
 function resultScene:update(dt)
-	if love.mouse.isDown(1) then
-		self.remove = true
-	end
+
 end
 
 function resultScene:draw()
@@ -21,11 +22,15 @@ function resultScene:draw()
 	love.graphics.setColor(255, 255, 255)
 	love.graphics.printf("You "..self.result, 0, height/1.6/scale, width/scale, 'center', 0, scale)
 
-	love.graphics.printf("Play again?", 0, height/scale, width/scale, 'center', 0, scale)
+	self.buttons:draw()
 end
 
 function resultScene.close()
 	return 'selectMode', nil
+end
+
+function resultScene:mouseActions(x,y)
+	self.buttons:mouseActions(x,y)
 end
 
 return resultScene

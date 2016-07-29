@@ -15,7 +15,6 @@ client.msgStack = {}
 client.parsed = {A=nil,P=nil}
 
 function client:parser(data)
-	print(data)
 	local mtype, enum = data:match("([A-Z]):([0-9]+)")
 	if mtype and enum then
 		self.parsed[mtype] = tonumber(enum)
@@ -38,13 +37,13 @@ function client:update(dt)
 	self.t = self.t+dt
 	if self.t>self.updaterate then
 		self.udp:send(self.payload)
-		self.payload = "y"
 		self.t = 0
 	end
 	repeat
 		local data, msg = self.udp:receive()
 		if data then
 			self:parser(data)
+			self.payload = "y"
 		end
 	until not data
 end

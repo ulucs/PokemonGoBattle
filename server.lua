@@ -9,7 +9,7 @@ server.msgStack = {}
 server.parsed = {A=nil,P=nil}
 
 function server:parser(data)
-	print(data)
+
 	local mtype, enum = data:match("([A-Z]):([0-9]+)")
 	if mtype and enum then
 		self.parsed[mtype] = tonumber(enum)
@@ -33,9 +33,10 @@ function server:update(dt)
 		if self.payload then
 			self.udp:sendto(self.payload, msg_or_ip, port_or_nil)
 			self.payload = nil
+		else
+			self.udp:sendto("r", msg_or_ip, port_or_nil)
 		end
 	end
-
 end
 
 return server

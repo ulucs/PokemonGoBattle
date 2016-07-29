@@ -4,12 +4,12 @@ selectScreen.buttons = require('buttons')()
 
 function selectScreen:load()
 	self.buttons:addButton("Server",battleScene.width*0.2,battleScene.width*0.4,battleScene.width*0.6,battleScene.width*0.4,scale,function()
-			print('a')
+		
 			self.remove = true
 			self.resultParams = {address="", mode="server"}
 		end)
 	self.buttons:addButton("Client",battleScene.width*0.2,battleScene.width*0.9,battleScene.width*0.6,battleScene.width*0.4,scale,function()
-			print('b')
+		
 			self.remove = true
 			self.resultParams = {address="localhost", mode="client"}
 		end)
@@ -18,7 +18,7 @@ function selectScreen:load()
 end
 
 function selectScreen:update(dt)
-	self.buttons:update()
+	
 end
 
 function selectScreen:draw()
@@ -31,6 +31,10 @@ end
 
 function selectScreen:close()
 	return 'battleScene', self.resultParams
+end
+
+function selectScreen:mouseActions(x,y)
+	self.buttons:mouseActions(x,y)
 end
 
 return selectScreen

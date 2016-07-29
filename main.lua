@@ -26,3 +26,9 @@ function sceneTransfer()
 	scene = require(nextScene)()
 	scene:load(params)
 end
+
+function love.mousereleased(x,y,button,istouch)
+	if scene.mouseActions then
+		scene:mouseActions(x,y,button,istouch)
+	end
+end
