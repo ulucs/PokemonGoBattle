@@ -32,3 +32,15 @@ function love.mousereleased(x,y,button,istouch)
 		scene:mouseActions(x,y,button,istouch)
 	end
 end
+
+function love.textinput(t)
+    if scene.textinput then
+    	scene:textinput(t)
+    end
+end
+
+function love.keypressed(key)
+    if scene.keypressed then
+    	scene:keypressed(key)
+    end
+end
