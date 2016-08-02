@@ -5,7 +5,7 @@ client.socket = require('socket')
 local port = 3300
 
 client.entity = nil
-client.updaterate = 0.1
+client.updaterate = 0.2
 
 client.udp = nil
 client.t = nil
@@ -14,16 +14,26 @@ client.payload = ""
 client.msgStack = {}
 client.parsed = {A=nil,P=nil}
 
+function client.pokeEncode(pokeObj)
+	local str = "P:"
+	return str..pokeObj.id.."a"..pokeObj.aIV.."d"..pokeObj.dIV.."s"..pokeObj.sIV
+end
+
+function client.pokeDecode(pokestr)
+	local pokeId, pokeA, pokeD, pokeS = string.match(pokestr,"(%d+)a(%d+)d(%d+)s(%d+)")
+	return {id=tonumber(pokeId),aIV=tonumber(pokeA),dIV=tonumber(pokeD),sIV=tonumber(pokeS)}
+end
+
 function client:parser(data)
-	local mtype, enum = data:match("([A-Z]):([0-9]+)")
+	local mtype, enum= data:match("([A-Z]):([ads0-9]+)")
 	if mtype and enum then
-		self.parsed[mtype] = tonumber(enum)
+		self.parsed[mtype] = (mtype=='P') and self.pokeDecode(enum) or tonumber(enum)
 	end
 end
 
 function client:load(address)
 	self.udp = self.socket.udp()
-	self.udp:settimeout(0)
+	self.udp:settimeout(0.013)
 	self.udp:setpeername(address, port)
 
 	self.t = 0

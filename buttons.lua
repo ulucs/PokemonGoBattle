@@ -37,7 +37,7 @@ function buttons:draw()
 	end
 end
 
-function buttons:mouseActions(x,y,button,istouch)
+function buttons:mousepressed(x,y,button,istouch)
 	for _,v in ipairs(self.updateStack) do
 		if v.condition(x,y) then
 			v.result()

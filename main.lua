@@ -1,5 +1,5 @@
 require('confs')
-scene = require('selectMode')()
+scene = require('loginScreen')()
 
 function love.load()
 	love.window.setMode(battleScene.width*scale,(battleScene.width*16/9)*scale,{vsync=false})
@@ -27,9 +27,15 @@ function sceneTransfer()
 	scene:load(params)
 end
 
+function love.mousepressed(x, y, button, istouch)
+	if scene.mousepressed then
+		scene:mousepressed(x,y,button,istouch)
+	end
+end
+
 function love.mousereleased(x,y,button,istouch)
-	if scene.mouseActions then
-		scene:mouseActions(x,y,button,istouch)
+	if scene.mousereleased then
+		scene:mousereleased(x,y,button,istouch)
 	end
 end
 

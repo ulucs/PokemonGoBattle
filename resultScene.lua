@@ -29,8 +29,8 @@ function resultScene.close()
 	return 'selectMode', nil
 end
 
-function resultScene:mouseActions(x,y)
-	self.buttons:mouseActions(x,y)
+function resultScene:mousepressed(x,y)
+	self.buttons:mousepressed(x,y)
 end
 
 return resultScene

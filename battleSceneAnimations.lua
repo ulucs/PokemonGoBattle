@@ -2,6 +2,21 @@ local animations = {}
 
 animations.anim8 = require('anim8')
 animations.spriteData = require('spriteData')
+animations.pokemonData = require('pokemonData')
+animations.moveData = require('moveData')
+animations.typeData = require('typeData')
+
+function animations:damageFunc(attacker,attacked,move)
+	local superE = 1
+	for i,v in ipairs(self.pokemonData[attacked.id]["types"]) do
+		superE = superE * self.typeData.typeMultp[self.typeData.type2num[self.moveData[move]["type"]]][self.typeData.type2num[v]]
+	end
+	return 1.8*superE*(self.pokemonData[attacker.id]["attack"]+attacker.aIV)/(self.pokemonData[attacker.id]["defense"]+attacked.dIV)*self.moveData[move]["power"]
+end
+
+function animations:pokemonHP(pokemon)
+	return self.pokemonData[pokemon.id]["hp"]+pokemon.sIV
+end
 
 -- forgive me lord for I have sinned
 -- I should do some ""metaprogramming"" to set these data instances straight
@@ -52,8 +67,8 @@ function animations:pokeOffsetBack(pokeNumber)
 	return sprite[1], sprite[2]
 end
 
-function animations:enemyPokemon(Pid)
-	local enemy = {hp=100, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=Pid, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+function animations:enemyPokemon(pokeObject)
+	local enemy = {maxhp=self:pokemonHP(pokeObject), hp=self:pokemonHP(pokeObject), x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, animation=nil, image=nil, id=pokeObject.id, aIV=pokeObject.aIV, dIV=pokeObject.dIV, scale=enemyScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
 	enemy.image = self.pokeImage(enemy.id)
 	enemy.animation = self:pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = self:pokeOffset(enemy.id)
@@ -61,22 +76,23 @@ function animations:enemyPokemon(Pid)
 end
 
 function animations:placeholderMon()
-	local enemy = {hp=100, x=0, y=0, animation=nil, image=nil, id=1, scale=0, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder = true}
+	local enemy = {maxhp=100, hp=100, x=0, y=0, animation=nil, image=nil, id=1, scale=0, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false, placeholder = true}
 	enemy.image = self.pokeImage(enemy.id)
 	enemy.animation = self:pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = 0,0
 	return enemy
 end
 
-function animations:friendPokemon(Pid)
-	local friend = {hp=100, x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=Pid, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
+function animations:friendPokemon(pokeObject)
+	local friend = {maxhp=self:pokemonHP(pokeObject), hp=self:pokemonHP(pokeObject), x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, animation=nil, image=nil, id=pokeObject.id, move1=pokeObject.move1, move2=pokeObject.move2, aIV=pokeObject.aIV, dIV=pokeObject.dIV, scale=friendScale, attack=nil, xo=nil, yo=nil, fainted=false, battleReady=false}
 	friend.image = self:pokeImageBack(friend.id)
 	friend.animation = self:pokeAnimateBack(friend.id)
 	friend.xo, friend.yo = self:pokeOffsetBack(friend.id)
 	return friend
 end
 
-function animations.strikeAttack(attacker, attacked)
+function animations:strikeAttack(attacker, attacked, moveno)
+	local move = self.moveData[moveno]
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 8*(1-t)^3')
@@ -88,14 +104,15 @@ function animations.strikeAttack(attacker, attacked)
 	attack.scaleScale = 0.6*(-attacker.scale+attacked.scale)
 	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
 	attack.animationEnd = {attacker.x,attacker.y,attacker.scale}
-	attack.timeScale = 1
+	attack.timeScale = move.duration
 	attack.terminate = function()
-		attacked.hp = attacked.hp-25
+		attacked.hp = attacked.hp - self:damageFunc(attacker,attacked,moveno)
 	end
 	return attack
 end
 
-function animations.strongAttack(attacker, attacked)
+function animations:strongAttack(attacker, attacked, moveno)
+	local move = self.moveData[moveno]
 	local attack = {ti=nil, xPath=nil, yPath=nil, scalePath=nil, xScale=nil, yScale=nil, scaleScale=nil, animationStart=nil, timeScale=nil, terminate=nil}
 	attack.ti = 0
 	attack.xPath = lambda('t','t<0.5 and 8*t^3 or 2*(1-t)')
@@ -107,9 +124,9 @@ function animations.strongAttack(attacker, attacked)
 	attack.scaleScale = 0.8*(-attacker.scale+attacked.scale)
 	attack.animationStart = {attacker.x,attacker.y,attacker.scale}
 	attack.animationEnd = {attacker.x,attacker.y,attacker.scale}
-	attack.timeScale = 2
+	attack.timeScale = move.duration
 	attack.terminate = function()
-		attacked.hp = attacked.hp-40
+		attacked.hp = attacked.hp - self:damageFunc(attacker,attacked,moveno)
 	end
 	return attack
 end
@@ -203,11 +220,11 @@ function animations:drawHealthBars(frPkmn, bkPkmn)
 	end
 
 	love.graphics.push("all")
-	love.graphics.setColor(2.44*(100-bkPkmn.hp),2.44*bkPkmn.hp,0)
+	love.graphics.setColor(244*(1-bkPkmn.hp/bkPkmn.maxhp),244*bkPkmn.hp/bkPkmn.maxhp,0)
 	love.graphics.polygon('fill', 6*scale,(healthbars.y+24)*scale, 6*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+24)*scale)
-	if debug then
-		love.graphics.setColor(2.44*(100-frPkmn.hp),2.44*frPkmn.hp,0)
-	end
+	love.graphics.setColor(255, 255, 255)
+	love.graphics.printf(math.floor(bkPkmn.hp).."/"..math.floor(bkPkmn.maxhp), 6*scale, (healthbars.y+23)*scale, (battleScene.width/2-22), 'center', 0, scale)
+	love.graphics.setColor(244*(1-frPkmn.hp/frPkmn.maxhp),244*frPkmn.hp/frPkmn.maxhp,0)
 	love.graphics.polygon('fill', (battleScene.width-6)*scale,(healthbars.y+7)*scale, (battleScene.width-6)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+7)*scale)
 	love.graphics.pop()
 
