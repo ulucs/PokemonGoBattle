@@ -28,7 +28,7 @@ function mainScene:load(loadmode)
 	for i,v in ipairs(playerPokemon) do
 		table.insert(self.ourpokemon, self.animation:friendPokemon(v))
 		table.insert(self.pokeImages, love.graphics.newImage("pokemonSprites/icon/"..v.id..".png"))
-		local pokeBtn = self.gui:button('', {x=self.calcPokeX(i)*scale, y=self.calcPokeY(i)*scale, w=32*scale, h=32*scale})
+		local pokeBtn = self.gui:button('', {x=self.calcPokeX(i) , y=self.calcPokeY(i) , w=32 , h=32 })
 		pokeBtn.click = function (this,x,y)
 			if self.ourpokemon[i]['hp'] > 0 and not self.friend.currentAnimation then
 				self.nextMon = i
@@ -36,14 +36,14 @@ function mainScene:load(loadmode)
 		end
 	end
 
-	self.fastButton = self.gui:button('', {x=37*scale, y=(ui.y+16)*scale, w=106*scale, h=36*scale})
+	self.fastButton = self.gui:button('', {x=37 , y=(ui.y+16) , w=106 , h=36 })
 	self.fastButton.click = function(this,x,y)
 		if not self.friend.currentAnimation then
 			self.nextAttack = 1
 		end
 	end
 
-	self.strongButton = self.gui:button('', {x=37*scale, y=(ui.y+62)*scale, w=106*scale, h=36*scale})
+	self.strongButton = self.gui:button('', {x=37 , y=(ui.y+62) , w=106 , h=36 })
 	self.strongButton.click = function(this,x,y)
 		if not self.friend.currentAnimation then
 			self.nextAttack = 2
@@ -163,7 +163,7 @@ function mainScene:draw()
 		if v.hp <= 0 then
 			love.graphics.setColor(126, 126, 126) 
 		end
-		love.graphics.draw(self.pokeImages[i], self.calcPokeX(i)*scale, self.calcPokeY(i)*scale, 0, scale)
+		love.graphics.draw(self.pokeImages[i], self.calcPokeX(i) , self.calcPokeY(i) , 0, 1)
 		love.graphics.pop()
 	end
 end

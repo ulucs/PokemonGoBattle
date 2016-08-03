@@ -28,9 +28,9 @@ function selectScreen:draw()
 	love.graphics.push("all")
 	love.graphics.setColor(255, 255, 255)
 	if love.keyboard.hasTextInput() then
-		love.graphics.printf("Connect to:\n"..self.clientIP, 0,battleScene.width*0.1*scale, battleScene.width, 'center', 0, scale)
+		love.graphics.printf("Connect to:\n"..self.clientIP, 0,battleScene.width*0.1 , battleScene.width, 'center', 0, 1)
 	end
-	love.graphics.printf("Your server IP:\n"..self.serverIP, 0,battleScene.width*1.4*scale, battleScene.width, 'center', 0, scale)
+	love.graphics.printf("Your server IP:\n"..self.serverIP, 0,battleScene.width*1.4 , battleScene.width, 'center', 0, 1)
 	love.graphics.pop()
 	self.buttons:draw()
 end

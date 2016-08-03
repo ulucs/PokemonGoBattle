@@ -29,6 +29,7 @@ function love.draw()
 		love.graphics.translate(-battleScene.width*scale, 0)
 		-- translations end
 	end
+	love.graphics.scale(scale)
 	scene:draw()
 end
 
@@ -49,7 +50,7 @@ function love.mousepressed(x, y, button, istouch)
 		mx,my = x,y
 	end
 	if scene.mousepressed then
-		scene:mousepressed(mx,my,button,istouch)
+		scene:mousepressed(mx/scale,my/scale,button,istouch)
 	end
 end
 
@@ -62,16 +63,16 @@ function love.mousereleased(x,y,button,istouch)
 		mx,my = x,y
 	end
 	if scene.mousereleased then
-		scene:mousereleased(mx,my,button,istouch)
+		scene:mousereleased(mx/scale,my/scale,button,istouch)
 	end
 end
 
 function love.mouse.translated()
+	local x,y = love.mouse.getPosition()
 	if rotated then
-		local x,y = love.mouse.getPosition()
-		return battleScene.width*scale-y,x
+		return battleScene.width-y/scale,x/scale
 	else
-		return love.mouse.getPosition()
+		return x/scale, y/scale
 	end
 end
 

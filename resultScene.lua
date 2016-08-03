@@ -14,13 +14,13 @@ function resultScene:update(dt)
 end
 
 function resultScene:draw()
-	local width = battleScene.width*scale
+	local width = battleScene.width 
 	local height = width*16/9
 	love.graphics.setColor(0,0,0)
 	love.graphics.polygon('fill', 0,0, width,0, width,height, 0,height )
 
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.printf("You "..self.result, 0, height/1.6/scale, width/scale, 'center', 0, scale)
+	love.graphics.printf("You "..self.result, 0, height/1.6/scale, width/scale, 'center', 0, 1)
 
 	self.buttons:draw()
 end

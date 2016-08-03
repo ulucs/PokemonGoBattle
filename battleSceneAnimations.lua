@@ -24,7 +24,7 @@ end
 -- I should do some ""metaprogramming"" to set these data instances straight
 
 function animations.drawPokemon(pokemon)
-	pokemon.genericAnimation:draw(pokemon.image, pokemon.x, pokemon.y, 0,scale*pokemon.scale,scale*pokemon.scale,pokemon.xo,pokemon.yo)
+	pokemon.genericAnimation:draw(pokemon.image, pokemon.x, pokemon.y, 0, pokemon.scale, pokemon.scale,pokemon.xo,pokemon.yo)
 end
 
 function animations:pokeAnimate(pokeNumber)
@@ -70,7 +70,7 @@ function animations:pokeOffsetBack(pokeNumber)
 end
 
 function animations:enemyPokemon(pokeObject)
-	local enemy = {maxhp=self:pokemonHP(pokeObject), hp=pokeObject.hp, x=battleScene.width*0.75*scale, y=battleScene.height*0.425*scale, genericAnimation=nil, image=nil, id=pokeObject.id, aIV=pokeObject.aIV, dIV=pokeObject.dIV, scale=enemyScale, currentAnimation=nil, xo=nil, yo=nil, fainted=false, recall=false, battleReady=false}
+	local enemy = {maxhp=self:pokemonHP(pokeObject), hp=pokeObject.hp, x=battleScene.width*0.75 , y=battleScene.height*0.425 , genericAnimation=nil, image=nil, id=pokeObject.id, aIV=pokeObject.aIV, dIV=pokeObject.dIV, scale=enemyScale, currentAnimation=nil, xo=nil, yo=nil, fainted=false, recall=false, battleReady=false}
 	enemy.image = self.pokeImage(enemy.id)
 	enemy.genericAnimation = self:pokeAnimate(enemy.id)
 	enemy.xo, enemy.yo = self:pokeOffset(enemy.id)
@@ -86,7 +86,7 @@ function animations:placeholderMon()
 end
 
 function animations:friendPokemon(pokeObject)
-	local friend = {maxhp=self:pokemonHP(pokeObject), hp=self:pokemonHP(pokeObject), x=battleScene.width*0.3*scale, y=battleScene.height*0.83*scale, genericAnimation=nil, image=nil, id=pokeObject.id, move1=pokeObject.move1, move2=pokeObject.move2, aIV=pokeObject.aIV, dIV=pokeObject.dIV, sIV=pokeObject.sIV, scale=friendScale, currentAnimation=nil, xo=nil, yo=nil, fainted=false, recall=false, battleReady=false}
+	local friend = {maxhp=self:pokemonHP(pokeObject), hp=self:pokemonHP(pokeObject), x=battleScene.width*0.3 , y=battleScene.height*0.83 , genericAnimation=nil, image=nil, id=pokeObject.id, move1=pokeObject.move1, move2=pokeObject.move2, aIV=pokeObject.aIV, dIV=pokeObject.dIV, sIV=pokeObject.sIV, scale=friendScale, currentAnimation=nil, xo=nil, yo=nil, fainted=false, recall=false, battleReady=false}
 	friend.image = self:pokeImageBack(friend.id)
 	friend.genericAnimation = self:pokeAnimateBack(friend.id)
 	friend.xo, friend.yo = self:pokeOffsetBack(friend.id)
@@ -205,9 +205,9 @@ function animations.checkFaint(attacked)
 end
 
 function animations:drawBattleScene(bg, frPkmn, bkPkmn)
-	love.graphics.draw(bg, 0, 0, 0, scale)
+	love.graphics.draw(bg, 0, 0, 0, 1)
 	if debug then
-		love.graphics.print("FPS: "..love.timer.getFPS(), 0,0,0, scale) end
+		love.graphics.print("FPS: "..love.timer.getFPS(), 0,0,0, 1) end
 
 	self.drawPokemon(frPkmn)
 	self.drawPokemon(bkPkmn)
@@ -216,38 +216,38 @@ end
 function animations:drawHealthBars(frPkmn, bkPkmn)
 	-- love.graphics.push("all")
 	-- love.graphics.setColor(60, 11, 11)
-	-- love.graphics.polygon('fill', 0,healthbars.y*scale, battleScene.width*scale,healthbars.y*scale, battleScene.width*scale,(healthbars.y+healthbars.height)*scale, 0,(healthbars.y+healthbars.height)*scale)
+	-- love.graphics.polygon('fill', 0,healthbars.y , battleScene.width ,healthbars.y , battleScene.width ,(healthbars.y+healthbars.height) , 0,(healthbars.y+healthbars.height) )
 	-- love.graphics.pop()
-	love.graphics.draw(healthbars.bg, 0, healthbars.y*scale, 0, healthbars.width*scale, healthbars.height*scale)
+	love.graphics.draw(healthbars.bg, 0, healthbars.y , 0, healthbars.width , healthbars.height )
 
 	if not bkPkmn.placeholder then
-	love.graphics.print(self.spriteData.pokemonNames[bkPkmn.id].."" , 5*scale, (healthbars.y+5)*scale, 0, scale)
+	love.graphics.print(self.spriteData.pokemonNames[bkPkmn.id].."" , 5 , (healthbars.y+5) , 0, 1)
 	end
 	if not frPkmn.placeholder then
-		love.graphics.printf(self.spriteData.pokemonNames[frPkmn.id].."", 0, (healthbars.y+22)*scale, battleScene.width-6, 'right', 0, scale)
+		love.graphics.printf(self.spriteData.pokemonNames[frPkmn.id].."", 0, (healthbars.y+22) , battleScene.width-6, 'right', 0, 1)
 	end
 
 	love.graphics.push("all")
 	love.graphics.setColor(244*(1-bkPkmn.hp/bkPkmn.maxhp),244*bkPkmn.hp/bkPkmn.maxhp,0)
-	love.graphics.polygon('fill', 6*scale,(healthbars.y+24)*scale, 6*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+24)*scale)
+	love.graphics.polygon('fill', 6 ,(healthbars.y+24) , 6 ,(healthbars.y+34) , (battleScene.width/2-16) ,(healthbars.y+34) , (battleScene.width/2-16) ,(healthbars.y+24) )
 	love.graphics.setColor(255, 255, 255)
 	if not bkPkmn.placeholder then
-		love.graphics.printf(math.max(bkPkmn.hp,0).."/"..bkPkmn.maxhp, 6*scale, (healthbars.y+23)*scale, (battleScene.width/2-22), 'center', 0, scale)
+		love.graphics.printf(math.max(bkPkmn.hp,0).."/"..bkPkmn.maxhp, 6 , (healthbars.y+23) , (battleScene.width/2-22), 'center', 0, 1)
 	end
 	love.graphics.setColor(244*(1-frPkmn.hp/frPkmn.maxhp),244*frPkmn.hp/frPkmn.maxhp,0)
-	love.graphics.polygon('fill', (battleScene.width-6)*scale,(healthbars.y+7)*scale, (battleScene.width-6)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+7)*scale)
+	love.graphics.polygon('fill', (battleScene.width-6) ,(healthbars.y+7) , (battleScene.width-6) ,(healthbars.y+17) , (battleScene.width/2+16) ,(healthbars.y+17) , (battleScene.width/2+16) ,(healthbars.y+7) )
 	love.graphics.pop()
 
 
-	love.graphics.printf("VS",0, (healthbars.y+14)*scale, battleScene.width, 'center', 0, scale)
+	love.graphics.printf("VS",0, (healthbars.y+14) , battleScene.width, 'center', 0, 1)
 end
 
 function animations:drawUI(ourpokemon,currentMon)
 	-- love.graphics.push("all")
 	-- love.graphics.setColor(11, 6, 57)
-	-- love.graphics.polygon('fill', 0*scale,(ui.y+0)*scale, 0*scale,(ui.y+ui.height-0)*scale, (ui.width-0)*scale,(ui.y+ui.height-0)*scale, (ui.width-0)*scale,(ui.y+0)*scale)
+	-- love.graphics.polygon('fill', 0 ,(ui.y+0) , 0 ,(ui.y+ui.height-0) , (ui.width-0) ,(ui.y+ui.height-0) , (ui.width-0) ,(ui.y+0) )
 	-- love.graphics.pop()
-	-- love.graphics.draw(ui.bg, 0, ui.y*scale, 0, scale)
+	-- love.graphics.draw(ui.bg, 0, ui.y , 0, 1)
 end
 
 return animations
