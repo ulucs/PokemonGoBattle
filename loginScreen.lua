@@ -2,7 +2,7 @@ playerPokemon = nil
 return function()
 require('confs')
 local loginScreen = {remove=false,resultParams=nil}
-loginScreen.gui = require('Gspot')
+loginScreen.gui = require('Gspot')()
 loginScreen.login = require('mainServerConnect')
 
 function loginScreen:load(params)

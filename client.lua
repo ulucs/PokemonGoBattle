@@ -16,16 +16,16 @@ client.parsed = {A=nil,P=nil}
 
 function client.pokeEncode(pokeObj)
 	local str = "P:"
-	return str..pokeObj.id.."a"..pokeObj.aIV.."d"..pokeObj.dIV.."s"..pokeObj.sIV
+	return str..pokeObj.id.."a"..pokeObj.aIV.."d"..pokeObj.dIV.."s"..pokeObj.sIV.."h"..pokeObj.hp
 end
 
 function client.pokeDecode(pokestr)
-	local pokeId, pokeA, pokeD, pokeS = string.match(pokestr,"(%d+)a(%d+)d(%d+)s(%d+)")
-	return {id=tonumber(pokeId),aIV=tonumber(pokeA),dIV=tonumber(pokeD),sIV=tonumber(pokeS)}
+	local pokeId, pokeA, pokeD, pokeS, pokeHP = string.match(pokestr,"(%d+)a(%d+)d(%d+)s(%d+)h(%d+)")
+	return {id=tonumber(pokeId),aIV=tonumber(pokeA),dIV=tonumber(pokeD),sIV=tonumber(pokeS),hp=tonumber(pokeHP)}
 end
 
 function client:parser(data)
-	local mtype, enum= data:match("([A-Z]):([ads0-9]+)")
+	local mtype, enum= data:match("([A-Z]):([adsh0-9]+)")
 	if mtype and enum then
 		self.parsed[mtype] = (mtype=='P') and self.pokeDecode(enum) or tonumber(enum)
 	end

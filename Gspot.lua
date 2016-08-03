@@ -1,3 +1,4 @@
+return function()
 -- Original author: https://github.com/trubblegum
 -- This is a modified version of https://github.com/trubblegum/Gspot/blob/cf0a49d7d2073686d7ddb32a4fa04e90593d36c4/Gspot.lua
 -- The original program did not include a copyright notice.
@@ -1209,3 +1210,5 @@ setmetatable(Gspot.progress, {__index = Gspot.util, __call = Gspot.progress.load
 
 
 return Gspot:load()
+
+end
