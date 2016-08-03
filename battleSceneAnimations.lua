@@ -7,15 +7,17 @@ animations.moveData = require('moveData')
 animations.typeData = require('typeData')
 
 function animations:damageFunc(attacker,attacked,move)
+	local pokeAtt = (self.pokemonData[attacker.id]["attack"]+attacker.aIV)+5
+	local pokeDef = (self.pokemonData[attacker.id]["defense"]+attacked.dIV)+5
 	local superE = 1
 	for i,v in ipairs(self.pokemonData[attacked.id]["types"]) do
 		superE = superE * self.typeData.typeMultp[self.typeData.type2num[self.moveData[move]["type"]]][self.typeData.type2num[v]]
 	end
-	return math.floor(1.8*superE*(self.pokemonData[attacker.id]["attack"]+attacker.aIV)/(self.pokemonData[attacker.id]["defense"]+attacked.dIV)*self.moveData[move]["power"])
+	return math.floor(1.8*superE*pokeAtt/pokeDef*self.moveData[move]["power"])
 end
 
 function animations:pokemonHP(pokemon)
-	return self.pokemonData[pokemon.id]["hp"]+pokemon.sIV
+	return (self.pokemonData[pokemon.id]["hp"]+pokemon.sIV)+100
 end
 
 -- forgive me lord for I have sinned
@@ -230,7 +232,7 @@ function animations:drawHealthBars(frPkmn, bkPkmn)
 	love.graphics.polygon('fill', 6*scale,(healthbars.y+24)*scale, 6*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+34)*scale, (battleScene.width/2-16)*scale,(healthbars.y+24)*scale)
 	love.graphics.setColor(255, 255, 255)
 	if not bkPkmn.placeholder then
-		love.graphics.printf(bkPkmn.hp.."/"..bkPkmn.maxhp, 6*scale, (healthbars.y+23)*scale, (battleScene.width/2-22), 'center', 0, scale)
+		love.graphics.printf(math.max(bkPkmn.hp,0).."/"..bkPkmn.maxhp, 6*scale, (healthbars.y+23)*scale, (battleScene.width/2-22), 'center', 0, scale)
 	end
 	love.graphics.setColor(244*(1-frPkmn.hp/frPkmn.maxhp),244*frPkmn.hp/frPkmn.maxhp,0)
 	love.graphics.polygon('fill', (battleScene.width-6)*scale,(healthbars.y+7)*scale, (battleScene.width-6)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+17)*scale, (battleScene.width/2+16)*scale,(healthbars.y+7)*scale)

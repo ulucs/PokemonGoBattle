@@ -12,3 +12,4 @@ function lambda(v,str)
 		.."return func"
 	return loadstring(funcstr)()
 end
+rotated = false

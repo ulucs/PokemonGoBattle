@@ -267,7 +267,7 @@ Gspot.textinput = function(this, key)
 end
 
 Gspot.getmouse = function(this)
-	return love.mouse.getPosition()
+	return love.mouse.translated()
 end
 
 -- legacy
