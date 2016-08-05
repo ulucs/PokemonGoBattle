@@ -169,6 +169,7 @@ function mainScene:draw()
 end
 
 function mainScene:close()
+	self.network:close()
 	local params = self.resultParams
 	local towards = 'resultScene'
 	return towards, params

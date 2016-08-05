@@ -1,5 +1,5 @@
 love.graphics.setDefaultFilter('nearest','nearest')
-debug = false
+debug = true
 battleScene = {width=180, height=192, bg=love.graphics.newImage('backgrounds/battle_background.png')}
 healthbars = {height = 42, width=battleScene.width, y=160, bg= love.graphics.newImage('backgrounds/healthbg.png')}
 ui = {width= battleScene.width, height=battleScene.width*16/9-healthbars.y-healthbars.height, x=0, y=healthbars.y+healthbars.height, bg= love.graphics.newImage('backgrounds/battleui.png')}

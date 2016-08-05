@@ -87,3 +87,10 @@ function love.keypressed(key)
     	scene:keypressed(key)
     end
 end
+
+function love.quit()
+	if scene.network then
+		scene.network:close()
+	end
+	return false
+end
