@@ -7,7 +7,7 @@ return function(user,pass)
 	local respbody = {}
 
 	local r,c = http.request({
-		url = "http://localhost:3000/gameLogin",
+		url = "http://ec2-52-87-243-27.compute-1.amazonaws.com/gameLogin",
 		method = "POST",
 		source = ltn12.source.string(source),
 		headers = {

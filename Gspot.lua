@@ -53,10 +53,16 @@ local function utf8len(s)
 	return p
 end
 
+-- adapt love.graphics.Scissor to transformations
+local lgsScissor = function(nx, ny, nw, nh) 
+	love.graphics.setScissor(nx and nx*scale or nil, ny and ny*scale or nil, nw and nw*scale or nil, nh and nh*scale or nil)
+end
+
 -- Apply a scissor to the current scissor (intersect the rects)
 local function clipScissor(nx, ny, nw, nh)
 	local ox, oy, ow, oh = love.graphics.getScissor()
 	if ox then
+		ox, oy, ow, oh = ox/scale, oy/scale, ow/scale, oh/scale
 		-- Intersect both rects
 		nw = nx + nw
 		nh = ny + nh
@@ -65,7 +71,7 @@ local function clipScissor(nx, ny, nw, nh)
 		nh = math.max(0, math.min(nh, oy + oh) - ny)
 	end
 	-- Set new scissor
-	love.graphics.setScissor(nx, ny, nw, nh)
+	lgsScissor(nx, ny, nw, nh)
 	-- Return old scissor
 	return ox, oy, ow, oh
 end
@@ -188,7 +194,7 @@ Gspot.draw = function(this)
 			if scissor then clipScissor(scissor.x, scissor.y, scissor.w, scissor.h) end
 			love.graphics.setFont(element.style.font)
 			element:draw(pos)
-			love.graphics.setScissor(ostyle_scissor_x, ostyle_scissor_y, ostyle_scissor_w, ostyle_scissor_h)
+			lgsScissor(ostyle_scissor_x, ostyle_scissor_y, ostyle_scissor_w, ostyle_scissor_h)
 		end
 	end
 	if this.mousein and this.mousein.tip then
@@ -857,7 +863,7 @@ Gspot.input = {
 				love.graphics.rectangle("fill", pos.x + this.style.unit / 4 + cursorx, pos.y + this.style.unit / 8, 1, pos.h - this.style.unit / 4)
 			end
 			-- restore current scissor
-			love.graphics.setScissor(sx, sy, sw, sh)
+			lgsScissor(sx, sy, sw, sh)
 		end
 		if this.label then
 			love.graphics.setColor(this.style.labelfg or this.style.fg)
@@ -961,7 +967,7 @@ Gspot.inputPassword = {
 				love.graphics.rectangle("fill", pos.x + this.style.unit / 4 + cursorx, pos.y + this.style.unit / 8, 1, pos.h - this.style.unit / 4)
 			end
 			-- restore current scissor
-			love.graphics.setScissor(sx, sy, sw, sh)
+			lgsScissor(sx, sy, sw, sh)
 		end
 		if this.label then
 			love.graphics.setColor(this.style.labelfg or this.style.fg)

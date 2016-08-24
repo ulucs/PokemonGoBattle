@@ -2,11 +2,11 @@ return function()
 local mainScene = {ourpokemon={},counter=nil,enemyCounter=nil,enemy=nil,friend=nil,network=nil,remove=false,resultParams=nil}
 mainScene.animation = require('battleSceneAnimations')
 mainScene.gui = require('Gspot')()
+mainScene.network = require('client')()
 
 noPokemon = 6
 
 function mainScene:load(loadmode)
-	self.network = require(loadmode.mode)()
 
 	self.counter = 1
 	self.enemyCounter = 1

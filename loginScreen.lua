@@ -6,14 +6,14 @@ loginScreen.gui = require('Gspot')()
 loginScreen.login = require('mainServerConnect')
 
 function loginScreen:load(params)
-	self.username = self.gui:input('Username', {battleScene.width*0.58,battleScene.width,200,20})
-	self.password = self.gui:inputPassword('Password', {battleScene.width*0.58,battleScene.width*1.2,200,20})
-	self.loginButton = self.gui:button('Login', {x = battleScene.width*0.3 , y = battleScene.width*0.7 , w = battleScene.width*0.4 , h = 16 })
+	self.username = self.gui:input('Username', {battleScene.width*0.4,battleScene.width*0.6,battleScene.width*0.5,20})
+	self.password = self.gui:inputPassword('Password', {battleScene.width*0.4,battleScene.width*0.75,battleScene.width*0.5,20})
+	self.loginButton = self.gui:button('Login', {x = battleScene.width*0.3 , y = battleScene.width*1.1 , w = battleScene.width*0.4 , h = 16 })
 	self.loginButton.click = function (this, x, y)
-		playerPokemon = self.login(self.username.value,self.password.value)
-		print(playerPokemon[1]['id'])
-
-		self.remove = true
+		--playerPokemon = self.login(self.username.value,self.password.value)
+		--print(playerPokemon[1]['id'])
+		print(self.username.value)
+		--self.remove = true
 	end
 end
 
@@ -25,7 +25,7 @@ function loginScreen:update(dt)
 	self.gui:update(dt)
 end
 
-function loginScreen:draw(dt)
+function loginScreen:draw()
 	self.gui:draw()
 end
 

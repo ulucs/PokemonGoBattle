@@ -2,6 +2,7 @@ return function()
 local client = {}
 client.socket = require('socket')
 
+local address = "ec2-52-87-243-27.compute-1.amazonaws.com"
 local port = 3300
 
 client.entity = nil
@@ -34,11 +35,11 @@ function client:parser(data)
 	end
 end
 
-function client:load(address)
+function client:load(roomname)
 	self.tcp = self.socket.tcp()
 	self.tcp:settimeout(0.01)
 	self.tcp:connect(address, port)
-	--self.tcp:send("Adam:Jensen\r\n")
+	self.tcp:send("R:"..roomname.."\r\n")
 
 	self.t = 0
 end
